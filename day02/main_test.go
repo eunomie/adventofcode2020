@@ -18,3 +18,11 @@ func TestValidPasswords(t *testing.T) {
 		t.Fatal(nbValid, 2)
 	}
 }
+
+func TestValidPasswords2(t *testing.T) {
+	pwdValidator := NewPasswordValidator(strings.Split(input, "\n"))
+	nbValid := pwdValidator.CountValidPasswords2()
+	if nbValid != 1 {
+		t.Fatal(nbValid, 1)
+	}
+}

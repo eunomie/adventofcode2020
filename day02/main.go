@@ -17,6 +17,7 @@ func main() {
 
 	validator := NewPasswordValidator(strings.Split(string(content), "\n"))
 	fmt.Println("nb valid:", validator.CountValidPasswords())
+	fmt.Println("nb valid 2:", validator.CountValidPasswords2())
 }
 
 type PasswordValidator struct {
@@ -66,6 +67,17 @@ func (v *PasswordValidator) CountValidPasswords() int {
 	return count
 }
 
+func (v *PasswordValidator) CountValidPasswords2() int {
+	count := 0
+	for _, p := range v.passwords {
+		if p.IsValid2() {
+			count++
+		}
+	}
+
+	return count
+}
+
 type PasswordCheck struct {
 	char          int32
 	minOccurrence int
@@ -85,4 +97,11 @@ func (c *PasswordCheck) IsValid() bool {
 		}
 	}
 	return count >= c.minOccurrence
+}
+
+func (c *PasswordCheck) IsValid2() bool {
+	char1 := c.password[c.minOccurrence-1] == uint8(c.char)
+	char2 := c.password[c.maxOccurrence-1] == uint8(c.char)
+
+	return char1 != char2
 }
