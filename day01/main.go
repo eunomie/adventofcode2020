@@ -15,37 +15,50 @@ func main() {
 	}
 
 	input := NewInput(string(content))
-	v1, v2 := input.GetPair()
 
-	fmt.Printf("pair is %d - %d\n", v1, v2)
-	fmt.Println(v1 * v2)
+	fmt.Println("pair:", input.GetPairProduct())
+	fmt.Println("triple:", input.GetTripleProduct())
 }
 
 type Input struct {
-	values map[int]bool
+	vals  []int
+	pairs map[int]int
 }
 
 func NewInput(inputContent string) *Input {
 	input := Input{
-		values: map[int]bool{},
+		pairs: map[int]int{},
 	}
-	for _, line := range strings.Split(inputContent, "\n") {
+	lines := strings.Split(inputContent, "\n")
+	vals := make([]int, len(lines))
+	for i, line := range lines {
 		val, err := strconv.Atoi(line)
 		if err != nil {
 			log.Fatal(err)
 		}
-		input.values[val] = true
+		vals[i] = val
 	}
+
+	for i := 0; i < len(vals); i++ {
+		for j := i + 1; j < len(vals); j++ {
+			input.pairs[vals[i]+vals[j]] = vals[i] * vals[j]
+		}
+	}
+	input.vals = vals
 
 	return &input
 }
 
-func (i *Input) GetPair() (int, int) {
-	for val := range i.values {
+func (i *Input) GetPairProduct() int {
+	return i.pairs[2020]
+}
+
+func (i *Input) GetTripleProduct() int {
+	for _, val := range i.vals {
 		missing := 2020 - val
-		if _, ok := i.values[missing]; ok {
-			return val, missing
+		if pair, ok := i.pairs[missing]; ok {
+			return pair * val
 		}
 	}
-	return 0, 0
+	return 0
 }
