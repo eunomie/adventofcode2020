@@ -14,7 +14,8 @@ func main() {
 	}
 
 	traj := NewTrajectory(string(content))
-	fmt.Println("nbTrees:", traj.CountTrees())
+	fmt.Println("nb trees:", traj.CountTrees())
+	fmt.Println("all slopes:", traj.CountTreesAllSlopes())
 }
 
 type Trajectory struct {
@@ -40,17 +41,32 @@ func NewTrajectory(input string) *Trajectory {
 }
 
 func (t *Trajectory) CountTrees() int {
+	return t.countTrees(3, 1)
+}
+
+func (t *Trajectory) countTrees(incX, incY int) int {
 	x := 0
 	y := 0
 	nbTrees := 0
 
-	for y < t.nbLines-1 {
-		x = (x + 3) % t.nbColumns
-		y += 1
+	for {
+		x = (x + incX) % t.nbColumns
+		y += incY
+		if y >= t.nbLines {
+			break
+		}
 		if t.trees[y][x] == "#" {
 			nbTrees++
 		}
 	}
 
 	return nbTrees
+}
+
+func (t *Trajectory) CountTreesAllSlopes() int {
+	return t.countTrees(1, 1) *
+		t.countTrees(3, 1) *
+		t.countTrees(5, 1) *
+		t.countTrees(7, 1) *
+		t.countTrees(1, 2)
 }

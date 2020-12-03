@@ -23,3 +23,11 @@ func TestNbTrees(t *testing.T) {
 		t.Fatal(nbTrees, 7)
 	}
 }
+
+func TestAllSlopes(t *testing.T) {
+	traj := NewTrajectory(input)
+	nb := traj.CountTreesAllSlopes()
+	if nb != 336 {
+		t.Fatal(nb, 336)
+	}
+}
