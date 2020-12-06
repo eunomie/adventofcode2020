@@ -24,7 +24,7 @@ b`
 
 	nbYes := CountNbYes(strings.NewReader(input))
 
-	if nbYes != 11 {
-		t.Fatal(nbYes, 11)
+	if nbYes != 6 {
+		t.Fatal(nbYes, 6)
 	}
 }

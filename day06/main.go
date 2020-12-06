@@ -21,23 +21,34 @@ func main() {
 
 func CountNbYes(input io.Reader) int {
 	count := 0
-	questions := map[string]bool{}
+	questions := map[string]int{}
+	nbPeople := 0
 
 	scanner := bufio.NewScanner(input)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
-			count += len(questions)
-			questions = map[string]bool{}
+			for _, nbAnswers := range questions {
+				if nbAnswers == nbPeople {
+					count++
+				}
+			}
+			nbPeople = 0
+			questions = map[string]int{}
 			continue
 		}
+		nbPeople++
 		tokens := strings.Split(line, "")
 		for _, q := range tokens {
-			questions[q] = true
+			questions[q]++
 		}
 	}
 
-	count += len(questions)
+	for _, nbAnswers := range questions {
+		if nbAnswers == nbPeople {
+			count++
+		}
+	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
