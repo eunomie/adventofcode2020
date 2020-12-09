@@ -1,34 +1,41 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
-	"os"
+	"math"
 	"strconv"
+	"strings"
 )
 
 func main() {
-	file, err := os.Open("input")
+	content, err := ioutil.ReadFile("input")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
-	x := NewXmasChecker(25, file)
-	fmt.Println("first number:", x.FindFirstEncodingError())
+	x := NewXmasChecker(25, string(content))
+	nb := x.FindFirstEncodingError()
+	fmt.Println("first number:", nb)
+	fmt.Println("encryption weakness:", x.FindEncryptionWeakness(nb))
 }
 
 type XmasChecker struct {
-	reader  io.Reader
-	bufsize int
+	sequence []int
+	bufsize  int
 }
 
-func NewXmasChecker(bufsize int, reader io.Reader) *XmasChecker {
+func NewXmasChecker(bufsize int, content string) *XmasChecker {
+	lines := strings.Split(content, "\n")
+	sequence := make([]int, len(lines))
+	for i, line := range lines {
+		v, _ := strconv.Atoi(line)
+		sequence[i] = v
+	}
 	return &XmasChecker{
-		reader:  reader,
-		bufsize: bufsize,
+		sequence: sequence,
+		bufsize:  bufsize,
 	}
 }
 
@@ -36,12 +43,7 @@ func (x *XmasChecker) FindFirstEncodingError() int {
 	buffer := make([]int, x.bufsize)
 	bufidx := 0
 
-	scanner := bufio.NewScanner(x.reader)
-	i := 0
-	for scanner.Scan() {
-		line := scanner.Text()
-		value, _ := strconv.Atoi(line)
-
+	for i, value := range x.sequence {
 		if i >= x.bufsize {
 			if !hasPair(value, buffer) {
 				return value
@@ -50,8 +52,6 @@ func (x *XmasChecker) FindFirstEncodingError() int {
 
 		buffer[bufidx] = value
 		bufidx = (bufidx + 1) % x.bufsize
-
-		i++
 	}
 	return 0
 }
@@ -69,4 +69,43 @@ func hasPair(value int, buffer []int) bool {
 		}
 	}
 	return false
+}
+
+func (x *XmasChecker) FindEncryptionWeakness(nb int) int {
+	sum := 0
+	min := math.MaxInt32
+	max := 0
+	idx := 0
+	startRangeIdx := 0
+	l := len(x.sequence)
+	for {
+		if idx == l {
+			break
+		}
+		value := x.sequence[idx]
+		sum += value
+		if value < min {
+			min = value
+		}
+		if value > max {
+			max = value
+		}
+
+		if sum == nb {
+			return min + max
+		}
+		if sum > nb {
+			sum = 0
+			min = math.MaxInt32
+			max = 0
+			startRangeIdx++
+			idx = startRangeIdx
+			continue
+		}
+		idx++
+	}
+
+	fmt.Println(l, idx, startRangeIdx)
+
+	return 0
 }
