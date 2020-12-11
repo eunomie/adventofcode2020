@@ -17,7 +17,7 @@ L.LLLLL.LL`
 	s := NewSeatsSimulation(input)
 	finalState := s.Run()
 	seats := s.CountOccupiedSeats(finalState)
-	if seats != 37 {
-		t.Fatal(seats, 37)
+	if seats != 26 {
+		t.Fatal(seats, 26)
 	}
 }
