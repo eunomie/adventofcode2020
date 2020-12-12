@@ -16,7 +16,7 @@ F11`
 	f := NewFerry(lib.AsStringArray(input))
 	pos := f.Move()
 	dist := pos.ManhattanDistance()
-	if dist != 25 {
-		t.Fatal(dist, 25)
+	if dist != 286 {
+		t.Fatal(dist, 286)
 	}
 }
