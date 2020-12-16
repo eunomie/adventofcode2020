@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestErrorRate(t *testing.T) {
 	const input = `class: 1-3 or 5-7
@@ -20,5 +22,31 @@ nearby tickets:
 	errRate := ts.Scan()
 	if errRate != 71 {
 		t.Fatal(errRate, 71)
+	}
+}
+
+func TestFields(t *testing.T) {
+	const input = `class: 0-1 or 4-19
+row: 0-5 or 8-19
+seat: 0-13 or 16-19
+
+your ticket:
+11,12,13
+
+nearby tickets:
+3,9,18
+15,1,5
+5,14,9`
+
+	ts := NewTicketScanner(input)
+	fields := ts.ScanFields()
+	if fields["class"] != 12 {
+		t.Error("class", fields["class"], 12)
+	}
+	if fields["row"] != 11 {
+		t.Error("row", fields["row"], 11)
+	}
+	if fields["seat"] != 13 {
+		t.Error("sear", fields["seat"], 13)
 	}
 }

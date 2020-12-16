@@ -13,6 +13,8 @@ func main() {
 	ts := NewTicketScanner(lib.Input())
 	errRate := ts.Scan()
 	fmt.Println("error rate:", errRate)
+	sum := ts.Departure()
+	fmt.Println("departure:", sum)
 }
 
 type FieldConstraint struct {
@@ -100,4 +102,81 @@ func (t *TicketScanner) Scan() int {
 	}
 
 	return errRate
+}
+
+func (t *TicketScanner) IsValidTicket(ticket []int) bool {
+	for _, v := range ticket {
+		if !t.IsValid(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func (t *TicketScanner) ScanFields() map[string]int {
+	allFields := map[int]map[string]bool{}
+	for i := range t.yourTicket {
+		allFields[i] = map[string]bool{}
+	}
+
+	for _, ticket := range t.nearbyTickets {
+		for i, v := range ticket {
+			if !t.IsValid(v) {
+				// ignore it
+				// there's some duplication, but let's see performances later, if needed
+				continue
+			}
+			for fieldName, constraint := range t.fields {
+				valid := constraint.IsValid(v)
+				if set, ok := allFields[i][fieldName]; ok {
+					valid = valid && set
+				}
+				allFields[i][fieldName] = valid
+			}
+		}
+	}
+
+	res := map[string]int{}
+	toRemove := map[string]bool{}
+	for len(res) < len(allFields) {
+		for _, fieldNames := range allFields {
+			for k := range toRemove {
+				fieldNames[k] = false
+			}
+		}
+		toRemove = map[string]bool{}
+		for i, fieldNames := range allFields {
+			nbTrue, name := countAndLastTrue(fieldNames)
+			if nbTrue == 1 {
+				res[name] = t.yourTicket[i]
+				toRemove[name] = true
+			}
+		}
+	}
+
+	return res
+}
+
+func (t *TicketScanner) Departure() int {
+	fields := t.ScanFields()
+	res := 1
+	for k, v := range fields {
+		if strings.HasPrefix(k, "departure") {
+			res *= v
+		}
+	}
+
+	return res
+}
+
+func countAndLastTrue(m map[string]bool) (int, string) {
+	res := 0
+	name := ""
+	for n, v := range m {
+		if v {
+			res++
+			name = n
+		}
+	}
+	return res, name
 }
