@@ -10,7 +10,7 @@ func TestActiveAfter6Cycles(t *testing.T) {
 	cc := NewConwayCubes(input)
 	cc.Run(6)
 	res := cc.ActiveStates()
-	if res != 112 {
-		t.Fatal(res, 112)
+	if res != 848 {
+		t.Fatal(res, 848)
 	}
 }
