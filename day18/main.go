@@ -17,61 +17,52 @@ func main() {
 	fmt.Println("sum:", sum)
 }
 
-func Addition(left, right int) int {
-	return left + right
-}
-
-func Multiplication(left, right int) int {
-	return left * right
-}
-
-type Expr struct {
-	Value    int
-	Operator func(int, int) int
-}
-
-func NewExpr(value int) *Expr {
-	return &Expr{
-		Value: value,
-	}
-}
-
-func NewIdentity() *Expr {
-	return &Expr{
-		Value:    1,
-		Operator: Multiplication,
-	}
-}
-
-func (e *Expr) Compute(v int) int {
-	return e.Operator(e.Value, v)
-}
-
 func Compute(formula string) int {
-	stack := []*Expr{
-		NewIdentity(),
+	output := []int{}
+	operators := []string{}
+
+	var l, r, v int
+	var o string
+
+	apply := func() {
+		l, r, output = output[len(output)-2], output[len(output)-1], output[:len(output)-2]
+		o, operators = operators[len(operators)-1], operators[:len(operators)-1]
+		if o == "+" {
+			v = l + r
+		} else if o == "*" {
+			v = l * r
+		}
+		output = append(output, v)
 	}
-	var p, l *Expr
 
 	for _, c := range formula {
-		switch c {
-		case ' ':
+		if c == ' ' {
 			continue
+		}
+		switch c {
 		case '+':
-			stack[len(stack)-1].Operator = Addition
+			operators = append(operators, string(c))
 		case '*':
-			stack[len(stack)-1].Operator = Multiplication
+			for len(operators) > 0 && operators[len(operators)-1] == "+" {
+				apply()
+			}
+			operators = append(operators, string(c))
 		case '(':
-			stack = append(stack, NewIdentity())
+			operators = append(operators, string(c))
 		case ')':
-			p, l, stack = stack[len(stack)-2], stack[len(stack)-1], stack[:len(stack)-2]
-			stack = append(stack, NewExpr(p.Compute(l.Value)))
+			for len(operators) > 0 && operators[len(operators)-1] != "(" {
+				apply()
+			}
+			operators = operators[:len(operators)-1]
 		case '1', '2', '3', '4', '5', '6', '7', '8', '9':
-			v, _ := strconv.Atoi(string(c))
-			l, stack = stack[len(stack)-1], stack[:len(stack)-1]
-			stack = append(stack, NewExpr(l.Compute(v)))
+			v, _ = strconv.Atoi(string(c))
+			output = append(output, v)
 		}
 	}
 
-	return stack[0].Value
+	for len(output) > 1 {
+		apply()
+	}
+
+	return output[0]
 }
